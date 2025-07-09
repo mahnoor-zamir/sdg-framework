@@ -1,0 +1,10 @@
+transformers
+sentence-transformers
+pandas
+numpy
+torch
+scikit-learn
+streamlit
+gradio
+pdfplumber
+openpyxl
