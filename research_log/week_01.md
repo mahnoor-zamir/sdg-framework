@@ -19,6 +19,10 @@
 - Ran the data extraction script and checked the output for the first few SDGs
 - Iteratively debugged parsing logic to ensure correct population of the JSON structure
 
+# Notes
+https://www.sciencedirect.com/science/article/pii/S0169023X24001290
+https://www.researchgate.net/publication/369126974_Mapping_Research_to_the_Sustainable_Development_Goals_A_Contextualised_Approach
+
 ## Reflections & Next Steps
 - The data extraction step is now robust for the provided CSV
 - Next: Manual/augmented QA dataset creation and continued research logging 
