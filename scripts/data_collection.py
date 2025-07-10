@@ -10,6 +10,9 @@ def load_indicator_list(csv_path):
     df.columns = ['goal_target', 'indicator', 'unsd_code']
     return df
 
+def is_goal_row(row_value):
+    return row_value.startswith('Goal')
+
 def structure_sdg_data(df):
     sdg = {}
     current_goal = None
@@ -21,7 +24,7 @@ def structure_sdg_data(df):
         unsd_code = str(row['unsd_code']).strip() if not pd.isna(row['unsd_code']) else ''
 
         # Detect new Goal
-        if goal_target.startswith('Goal'):
+        if is_goal_row(goal_target):
             parts = goal_target.split('.', 1)
             if len(parts) == 2:
                 current_goal = parts[0].replace('Goal', '').strip()
@@ -30,32 +33,44 @@ def structure_sdg_data(df):
                     'name': current_goal_name,
                     'targets': {}
                 }
+            current_target = None
             continue
 
-        # Detect new Target
+        # Detect new Target (possibly with indicator)
         if goal_target and not goal_target.startswith('Goal'):
             target_code = goal_target.split(' ', 1)[0]
             target_desc = goal_target[len(target_code):].strip()
             current_target = target_code
             if current_goal and current_target:
-                sdg[current_goal]['targets'][current_target] = {
-                    'description': target_desc,
-                    'indicators': []
-                }
-            continue
-
-        # Detect Indicator
-        if not goal_target and indicator:
-            ind_parts = indicator.split(' ', 1)
-            if len(ind_parts) == 2:
-                ind_code = ind_parts[0]
-                ind_desc = ind_parts[1]
-                if current_goal and current_target:
+                if current_target not in sdg[current_goal]['targets']:
+                    sdg[current_goal]['targets'][current_target] = {
+                        'description': target_desc,
+                        'indicators': []
+                    }
+            # Check if this row also contains an indicator
+            if indicator:
+                ind_parts = indicator.split(' ', 1)
+                if len(ind_parts) == 2:
+                    ind_code = ind_parts[0]
+                    ind_desc = ind_parts[1]
                     sdg[current_goal]['targets'][current_target]['indicators'].append({
                         'code': ind_code,
                         'description': ind_desc,
                         'unsd_code': unsd_code
                     })
+            continue
+
+        # Detect Indicator row (no new target, just indicator)
+        if indicator:
+            ind_parts = indicator.split(' ', 1)
+            if len(ind_parts) == 2 and current_goal and current_target:
+                ind_code = ind_parts[0]
+                ind_desc = ind_parts[1]
+                sdg[current_goal]['targets'][current_target]['indicators'].append({
+                    'code': ind_code,
+                    'description': ind_desc,
+                    'unsd_code': unsd_code
+                })
             continue
     return sdg
 
