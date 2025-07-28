@@ -16,7 +16,7 @@
 - Parsing logic adapted to handle non-standard SDG indicator CSV format
 
 ## Experiments & Tests
-- Ran the data extraction script and checked the output for the first few SDGs
+- Ran the data extraction script and checked the output 
 - Iteratively debugged parsing logic to ensure correct population of the JSON structure
 
 # Notes
