@@ -1,0 +1,31 @@
+{
+  "dataset_stats": {
+    "total_texts": 17248,
+    "agreement_threshold": 0.6,
+    "label_distribution": {
+      "single_label": 17248,
+      "multi_label": 0,
+      "max_labels_per_text": 1,
+      "avg_labels_per_text": 1.0
+    },
+    "sdg_frequency": {
+      "sdg_1": 1147,
+      "sdg_2": 827,
+      "sdg_3": 1854,
+      "sdg_4": 2328,
+      "sdg_5": 2291,
+      "sdg_6": 1343,
+      "sdg_7": 1590,
+      "sdg_8": 859,
+      "sdg_9": 688,
+      "sdg_10": 437,
+      "sdg_11": 1261,
+      "sdg_12": 245,
+      "sdg_13": 1133,
+      "sdg_14": 703,
+      "sdg_15": 542,
+      "sdg_16": 0,
+      "sdg_17": 0
+    }
+  }
+}
