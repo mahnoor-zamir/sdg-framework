@@ -1,0 +1,134 @@
+{
+  "metadata": {
+    "description": "SDG label overlap analysis between original OSDG dataset and similarity-based multi-label dataset",
+    "analysis_date": "2025-08-05T19:51:08.672467"
+  },
+  "overall_statistics": {
+    "total_texts": 17248,
+    "texts_with_original_sdg": 17248,
+    "texts_with_similarity_sdgs": 14025,
+    "total_matches": 12505,
+    "overall_preservation_rate": 72.50115955473099
+  },
+  "per_sdg_results": {
+    "sdg_1": {
+      "original_count": 1147,
+      "similarity_count": 4188,
+      "preserved_count": 1012,
+      "preservation_rate": 88.23016564952049,
+      "similarity_precision": 24.164278892072588
+    },
+    "sdg_2": {
+      "original_count": 827,
+      "similarity_count": 1220,
+      "preserved_count": 591,
+      "preservation_rate": 71.46311970979444,
+      "similarity_precision": 48.442622950819676
+    },
+    "sdg_3": {
+      "original_count": 1854,
+      "similarity_count": 1672,
+      "preserved_count": 846,
+      "preservation_rate": 45.63106796116505,
+      "similarity_precision": 50.59808612440191
+    },
+    "sdg_4": {
+      "original_count": 2328,
+      "similarity_count": 3694,
+      "preserved_count": 1648,
+      "preservation_rate": 70.79037800687286,
+      "similarity_precision": 44.61288576069302
+    },
+    "sdg_5": {
+      "original_count": 2291,
+      "similarity_count": 1679,
+      "preserved_count": 1524,
+      "preservation_rate": 66.52116979484941,
+      "similarity_precision": 90.76831447290054
+    },
+    "sdg_6": {
+      "original_count": 1343,
+      "similarity_count": 2564,
+      "preserved_count": 1228,
+      "preservation_rate": 91.43708116157856,
+      "similarity_precision": 47.893915756630264
+    },
+    "sdg_7": {
+      "original_count": 1590,
+      "similarity_count": 3168,
+      "preserved_count": 1373,
+      "preservation_rate": 86.35220125786164,
+      "similarity_precision": 43.339646464646464
+    },
+    "sdg_8": {
+      "original_count": 859,
+      "similarity_count": 3585,
+      "preserved_count": 481,
+      "preservation_rate": 55.9953434225844,
+      "similarity_precision": 13.417015341701536
+    },
+    "sdg_9": {
+      "original_count": 688,
+      "similarity_count": 3508,
+      "preserved_count": 452,
+      "preservation_rate": 65.69767441860465,
+      "similarity_precision": 12.884834663625996
+    },
+    "sdg_10": {
+      "original_count": 437,
+      "similarity_count": 3015,
+      "preserved_count": 266,
+      "preservation_rate": 60.86956521739131,
+      "similarity_precision": 8.822553897180763
+    },
+    "sdg_11": {
+      "original_count": 1261,
+      "similarity_count": 3157,
+      "preserved_count": 865,
+      "preservation_rate": 68.59635210150674,
+      "similarity_precision": 27.399429838454232
+    },
+    "sdg_12": {
+      "original_count": 245,
+      "similarity_count": 2987,
+      "preserved_count": 207,
+      "preservation_rate": 84.48979591836735,
+      "similarity_precision": 6.930030130565785
+    },
+    "sdg_13": {
+      "original_count": 1133,
+      "similarity_count": 2850,
+      "preserved_count": 956,
+      "preservation_rate": 84.37775816416593,
+      "similarity_precision": 33.54385964912281
+    },
+    "sdg_14": {
+      "original_count": 703,
+      "similarity_count": 1472,
+      "preserved_count": 665,
+      "preservation_rate": 94.5945945945946,
+      "similarity_precision": 45.17663043478261
+    },
+    "sdg_15": {
+      "original_count": 542,
+      "similarity_count": 914,
+      "preserved_count": 391,
+      "preservation_rate": 72.14022140221402,
+      "similarity_precision": 42.77899343544858
+    },
+    "sdg_16": {
+      "original_count": 0,
+      "similarity_count": 1624,
+      "preserved_count": 0,
+      "preservation_rate": 0.0,
+      "similarity_precision": 0.0
+    },
+    "sdg_17": {
+      "original_count": 0,
+      "similarity_count": 2256,
+      "preserved_count": 0,
+      "preservation_rate": 0.0,
+      "similarity_precision": 0.0
+    }
+  }
+}
