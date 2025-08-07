@@ -48,6 +48,65 @@ This project focuses on creating and analyzing multi-label SDG classification da
 - **SDG 3 (Good Health)**: 45.6% preservation, 50.6% precision
 - **SDG 8 (Decent Work)**: 56.0% preservation, 13.4% precision
 - **SDG 9 (Industry & Innovation)**: 65.7% preservation, 12.9% precision
+
+## Summarization Experiment Results (August 7, 2025)
+
+### BART Summarization + Embedding Approach
+**EXECUTIVE SUMMARY: FAILED EXPERIMENT - SIGNIFICANT PERFORMANCE DECLINE**
+
+#### Key Metrics:
+- **Overall preservation rate**: 62.4% (vs 72.5% baseline) - **10.1% decline**
+- **Processing time**: 104s (vs 73s baseline) - 31s slower
+- **Average labels per text**: 2.40 (vs 2.53 baseline)
+
+#### Major Findings:
+
+##### Critical Performance Degradations:
+- **SDG 2 (Zero Hunger)**: 71.5% → 24.1% (**-47.4%** - Critical failure)
+- **SDG 3 (Good Health)**: 45.6% → 17.7% (**-27.9%** - Critical failure)
+- **SDG 14 (Life Below Water)**: 94.6% → 76.5% (**-18.1%**)
+- **SDG 11 (Sustainable Cities)**: 68.6% → 52.5% (**-16.1%**)
+- **SDG 4 (Quality Education)**: 70.8% → 57.5% (**-13.3%**)
+- **SDG 8 (Decent Work)**: 56.0% → 43.2% (**-12.8%**)
+
+##### Minimal Improvements:
+- **SDG 10 (Reduced Inequalities)**: 60.9% → 62.9% (+2.1%)
+- **SDG 15 (Life on Land)**: 72.1% → 73.4% (+1.3%)
+
+##### Problematic SDG Analysis:
+- Hypothesis: Summarization would help SDGs 8, 9, 10, 12
+- **Reality**: Only 2/4 improved, with SDG 8 and 12 getting significantly worse
+- **Conclusion**: Hypothesis rejected
+
+#### Root Cause Analysis:
+
+1. **Information Loss**: BART compression (1000→250 words avg) removed critical context
+2. **Domain Mismatch**: BART trained on news; poor for scientific/policy content
+3. **Vocabulary Simplification**: Technical terms essential for SDG matching were generalized
+4. **Semantic Dilution**: Rich contextual information was summarized away
+
+#### Lessons Learned:
+
+1. **Summarization Paradox**: More focused text ≠ better classification when domain expertise matters
+2. **Context is King**: Full text provides richer semantic signals than summaries
+3. **Domain Specificity**: General summarization models can hurt specialized tasks
+4. **Vocabulary Preservation**: Technical terminology is crucial for accurate SDG classification
+
+### Recommendations Moving Forward:
+
+#### ❌ Discontinued Approaches:
+- BART or similar abstractive summarization for SDG classification
+- General-purpose summarization models for domain-specific tasks
+
+#### ✅ Validated Approaches:
+- Baseline similarity approach with full text (72.5% preservation)
+- Sentence transformer embeddings on complete documents
+
+#### 🔬 Future Research Directions:
+1. **Domain-Specific Models**: ClimateBERT, SustainabilityBERT
+2. **Ensemble Methods**: Combine multiple embedding models
+3. **Hybrid Approaches**: Dense + sparse retrieval
+4. **Selective Processing**: Context-aware text preprocessing
 - **SDG 10 (Reduced Inequalities)**: 60.9% preservation, 8.8% precision
 
 #### Missing from Original Dataset:
