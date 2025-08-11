@@ -1,0 +1,13 @@
+{
+  "model_name": "all-mpnet-base-v2",
+  "total_processing_time": 20.495866060256958,
+  "load_time": 1.64503812789917,
+  "embedding_time": 18.84782600402832,
+  "similarity_time": 0.0030019283294677734,
+  "embedding_dimensions": 768,
+  "total_texts": 1000,
+  "total_sdgs": 17,
+  "performance_metrics": {
+    "average_assignments_per_text": 3.598,
+    "coverage_percentage": 0.683,
+    "average_max_similarity": 

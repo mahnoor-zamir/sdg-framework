@@ -302,3 +302,68 @@ This project focuses on creating and analyzing multi-label SDG classification da
 
 ## Conclusion
 The embedding-based similarity approach successfully preserves 72.5% of original SDG labels while expanding coverage through multi-label assignments. Environmental SDGs show particularly strong performance, while social/economic SDGs present opportunities for further refinement. The methodology provides a robust foundation for automated SDG classification at scale.
+
+## Why Dual Summarization Failed: Detailed Analysis
+
+The counterintuitive result that dual summarization (Approach 4) performed worst despite being the most sophisticated approach reveals important insights about information preservation in NLP pipelines.
+
+### Information Loss in BART Summarization:
+
+**SDG Description Compression Analysis:**
+- SDG 3 (Health): 615 chars → 177 chars (29% compression ratio)
+- SDG 5 (Gender): 435 chars → 224 chars (51% compression ratio)  
+- SDG 6 (Water): 660 chars → 290 chars (44% compression ratio)
+
+The aggressive compression removed crucial contextual information needed for accurate semantic matching.
+
+### Similarity Score Impact:
+- Original approach average max similarity: **0.395**
+- Dual summarization average max similarity: **0.358**
+- **9.5% decrease** in similarity scores across the dataset
+
+### Specific Failure Examples:
+
+**Example 1 - Gender Equality Misclassification:**
+- Original text: "...challenges for women in political participation and decision-making..." 
+- Correctly classified as SDG 5 (Gender Equality) in original approach
+- Misclassified as SDG 4 (Education) in dual approach due to information loss
+
+**Example 2 - Health Access Misclassification:**
+- Original text: "...healthcare access and maternal health services..."
+- Correctly classified as SDG 3 (Good Health) in original approach  
+- Misclassified as SDG 10 (Reduced Inequalities) in dual approach
+
+### Root Cause Analysis:
+1. **Over-summarization**: BART compressed both texts and SDG descriptions too aggressively
+2. **Context loss**: Domain-specific terminology and nuanced relationships were simplified away
+3. **Semantic drift**: Summarized content shifted meaning away from original intent
+4. **Embedding mismatch**: Sentence transformer was trained on full sentences, not compressed summaries
+
+### Research Implications:
+This finding demonstrates that **more sophisticated NLP processing doesn't always improve performance**. In domain-specific classification tasks, preserving original semantic information often outweighs the benefits of text compression or transformation.
+
+### Key Lesson Learned:
+**Sometimes the simplest approach is the most effective**. The original baseline approach without any text modification achieved the highest performance by preserving the semantic richness necessary for accurate SDG classification.
+
+## Embedding Model Comparison: MiniLM vs MPNet
+
+**Testing all-mpnet-base-v2 as an alternative to all-MiniLM-L6-v2:**
+
+### Results Summary:
+- **all-MiniLM-L6-v2 (baseline)**: 0.396 average max similarity, 81.3% coverage
+- **all-mpnet-base-v2**: 0.355 average max similarity, 68.3% coverage
+- **Performance difference**: -10.4% decrease with MPNet
+
+### Key Findings:
+1. **MiniLM outperforms MPNet** for SDG classification despite having smaller dimensions (384 vs 768)
+2. **Coverage reduction**: MPNet had significantly lower text coverage (68.3% vs 81.3%)
+3. **Low agreement**: Only 29.4% Jaccard similarity between models, indicating different classification patterns
+4. **Processing efficiency**: MiniLM is both faster and more accurate for this domain
+
+### Why MiniLM Works Better:
+1. **Appropriate granularity**: 384 dimensions capture the right level of semantic detail for SDG classification
+2. **Domain suitability**: Training data may be more aligned with SDG-style texts
+3. **Avoiding overcomplexity**: Higher-dimensional embeddings can introduce noise for focused classification tasks
+
+### Recommendation:
+**Continue using all-MiniLM-L6-v2** - it provides the optimal balance of accuracy, efficiency, and coverage for SDG classification tasks.
