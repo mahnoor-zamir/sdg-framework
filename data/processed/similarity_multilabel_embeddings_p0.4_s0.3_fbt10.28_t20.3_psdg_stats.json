@@ -1,0 +1,42 @@
+{
+  "total_texts": 17248,
+  "label_distribution": {
+    "mean_labels_per_text": 2.5741535250463823,
+    "median_labels_per_text": 2.0,
+    "min_labels": 0,
+    "max_labels": 5,
+    "zero_labels": 2445,
+    "single_label": 4573,
+    "multi_label": 10230
+  },
+  "similarity_stats": {
+    "mean_max_similarity": 0.39500951495864783,
+    "median_max_similarity": 0.39454519748687744,
+    "min_similarity": 0.03253059834241867,
+    "max_similarity": 0.7478839755058289
+  },
+  "sdg_frequency": {
+    "sdg_1": 4227,
+    "sdg_2": 1252,
+    "sdg_3": 1772,
+    "sdg_4": 3865,
+    "sdg_5": 1785,
+    "sdg_6": 2587,
+    "sdg_7": 3215,
+    "sdg_8": 3666,
+    "sdg_9": 3554,
+    "sdg_10": 3081,
+    "sdg_11": 3202,
+    "sdg_12": 3009,
+    "sdg_13": 2856,
+    "sdg_14": 1482,
+    "sdg_15": 930,
+    "sdg_16": 1635,
+    "sdg_17": 2281
+  },
+  "comparison_with_original": {
+    "texts_with_original_label": 0,
+    "original_label_preserved": 0,
+    "preservation_rate": 0.0
+  }
+}

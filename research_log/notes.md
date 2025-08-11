@@ -196,7 +196,53 @@ This project focuses on creating and analyzing multi-label SDG classification da
 - Potential loss of context from summarized SDG descriptions
 - Reduced coverage of original labels
 
-### Experimental Hypotheses and Expected Outcomes
+## Threshold Tuning and Adaptive Fallback (Approach 1 Refinements)
+
+### Baseline (0.4/0.3, no fallback)
+- Zero-label texts: 3,223 (18.7%)
+- Avg labels/text: 2.53
+- Avg max similarity: 0.395
+
+### Adaptive Fallback Run A (fb1=0.30, fb2=0.34)
+- No change to zero-labels (95% of zero-label top1_similarity ≤ 0.296)
+
+### Adaptive Fallback Run B (fb1=0.28, fb2=0.30)
+- Zero-label texts: 2,445 (-24% vs baseline)
+- Avg labels/text: 2.57 (+0.04)
+- Avg max similarity: 0.395 (unchanged)
+
+Interpretation:
+- A small fallback threshold significantly reduces empty assignments with minimal side effects.
+
+### Per-SDG Threshold Optimization (using sim_sdg_* and GT)
+- Grid: thresholds 0.20–0.60 step 0.01
+- Objective: maximize per-SDG F1; also report option with precision≥0.5
+
+F1-optimal thresholds (thr_f1):
+- 1: 0.42, 2: 0.36, 3: 0.30, 4: 0.31, 5: 0.29, 6: 0.41, 7: 0.39, 8: 0.39, 9: 0.39,
+  10: 0.43, 11: 0.38, 12: 0.49, 13: 0.42, 14: 0.43, 15: 0.37 (16/17: no GT support)
+
+Precision≥0.5 option (thr_p50 examples):
+- 8: 0.57, 9: 0.56, 10: 0.60, 12: 0.59 (raises precision, sacrifices recall)
+
+Estimated overall using F1-optimal per-SDG thresholds:
+- Preservation: 0.553
+- Coverage: 0.653
+- Avg labels/text: 1.63
+
+Recommendations:
+- Use per-SDG thresholds for production calibration:
+  - Tighten generic SDGs (8/9/10/12): 0.39→0.56–0.60 if precision is priority
+  - Slightly raise 1/6/13/14 to ~0.41–0.43; keep 3/4/5/7/11/15 lower (0.29–0.39)
+- Keep adaptive fallback (fb1=0.28, fb2=0.30) to reduce empty outputs
+- Optionally cap max labels to 5 (already in place)
+
+Next steps:
+- Implement a per-SDG threshold map in inference
+- Add light keyword boosts for SDG 5/3/13 to recover borderline cases
+- Re-evaluate preservation/precision after applying the threshold map
+
+## Experimental Hypotheses and Expected Outcomes
 
 #### Approach 2 (Original Text vs Summarized SDG):
 - **Expected**: Improved precision due to focused SDG descriptions
@@ -367,3 +413,52 @@ This finding demonstrates that **more sophisticated NLP processing doesn't alway
 
 ### Recommendation:
 **Continue using all-MiniLM-L6-v2** - it provides the optimal balance of accuracy, efficiency, and coverage for SDG classification tasks.
+
+## Per-SDG Thresholds: Applied Run Results (F1-opt map)
+
+- Configuration: Primary/Secondary 0.4/0.3, per-SDG thresholds from `data/analysis/per_sdg_thresholds_f1.json`, fallback top1/top2 0.28/0.30, max labels 5.
+- Outputs:
+  - Dataset: `data/processed/similarity_multilabel_embeddings_p0.4_s0.3_fbt10.28_t20.3_psdg.csv` (+ JSON, + stats)
+  - Overlap analysis: `data/analysis/sdg_overlap_analysis.json`, `data/analysis/sdg_overlap_summary.csv`, `data/analysis/sdg_overlap_analysis.png`
+
+Results (full dataset, 17,248 texts):
+- Coverage: 85.8% (14,803 texts received labels); zero-labels: 2,445
+- Average labels/text: 2.57
+- Overall preservation (vs OSDG GT): 75.57% (13,035 matches)
+
+Per‑SDG highlights (Preservation %, Precision %):
+- High preservation: SDG 14 (95.2, 45.1), SDG 6 (93.1, 48.3), SDG 1 (89.3, 24.2), SDG 7 (88.7, 43.9), SDG 13 (84.6, 33.6)
+- Challenging precision: SDG 8 (59.1, 13.9), SDG 9 (68.3, 13.2), SDG 10 (62.9, 8.9), SDG 12 (86.1, 7.0)
+- SDG 16/17 absent in GT; similarity assigns labels (1,635/2,281 texts respectively)
+
+Notes:
+- Applying the F1‑optimal per‑SDG thresholds with fallback improves preservation to 75.6% while keeping healthy coverage and label richness.
+- Precision for generic SDGs (8/9/10/12) remains low under the F1‑optimal map; use the precision‑prior thresholds (e.g., 8:0.57, 9:0.56, 10:0.60, 12:0.59) if precision is prioritized over recall.
+
+Next:
+- Optional run with precision‑prior threshold map to compare PR trade‑offs.
+- Keep fallback (0.28/0.30) to minimize empty outputs
+
+## Baseline vs Per-SDG Thresholds + Fallback: Comparison
+
+Inputs
+- Baseline (Original vs Original): `data/processed/similarity_multilabel_embeddings_p0.4_s0.3.csv`
+- Per‑SDG thresholds + fallback: `data/processed/similarity_multilabel_embeddings_p0.4_s0.3_fbt10.28_t20.3_psdg.csv`
+
+Overall (vs OSDG GT)
+- Preservation: 72.50% → 75.57% (+3.07 pp; 12,505 → 13,035 matches)
+- Coverage: 81.3% → 85.8% (+4.5 pp; zero‑labels 3,223 → 2,445, −24.1%)
+- Average labels per text: 2.53 → 2.57
+
+Per‑SDG preservation (selected deltas)
+- Largest gains: SDG 4 (+6.4 pp, 70.8 → 77.2), SDG 3 (+5.0 pp, 45.6 → 50.6)
+- Consistent improvements: 1 (+1.1), 2 (+2.9), 5 (+3.4), 6 (+1.7), 7 (+2.4), 8 (+3.1), 9 (+2.6), 10 (+2.0), 11 (+2.9), 12 (+1.6), 13 (+0.2), 14 (+0.6), 15 (+2.4)
+- SDG 16/17: no GT; similarity assigns labels (counts increased slightly)
+
+Precision notes
+- Largely unchanged; minor upticks across many SDGs; SDG 5/14 remain high precision.
+- Generic SDGs remain low precision: 8 (13.4 → 13.9), 9 (12.9 → 13.2), 10 (8.8 → 8.9), 12 (6.9 → 7.0).
+
+Conclusion
+- Applying per‑SDG F1‑optimal thresholds plus fallback is worthwhile for recall/coverage: higher preservation (+3.07 pp), higher coverage (+4.5 pp), fewer zero‑labels (−24%).
+- If precision is the priority for SDG 8/9/10/12, switch those to the precision‑prior thresholds (e.g., 8:0.57, 9:0.56, 10:0.60, 12:0.59) while keeping fallback 0.28/0.30.
