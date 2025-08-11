@@ -1,3 +1,54 @@
+# Supervisor Summary (Executive Overview)
+
+Purpose
+- Build an accurate, scalable multi-label SDG classifier using semantic similarity.
+
+Data
+- Ground truth: 17,248 texts filtered from OSDG community dataset (agreement ≥ 0.6).
+- SDG references: 17 paragraph descriptions extracted from Agenda 2030.
+
+Methods Tested
+- Approach 1: Original Text vs Original SDG descriptions (embeddings + cosine similarity).
+- Approach 2: Original Text vs Summarized SDG descriptions (BART summaries).
+- Approach 3: Summarized Text vs Summarized SDG descriptions (dual summarization).
+
+Final Choice
+- Use Approach 1 with two refinements: adaptive fallback + per‑SDG threshold map.
+
+Why Not Summarization
+- Summarization removed important context, reducing similarity and preservation rates.
+
+Key Results (full dataset)
+- Baseline (Approach 1): Preservation 72.50%; Coverage 81.3%; Avg labels/text 2.53.
+- With refinements (per‑SDG thresholds + fallback): Preservation 75.57%; Coverage 85.8%; Avg labels/text 2.57; Zero‑labels reduced 3,223 → 2,445 (−24.1%).
+
+Quick Comparison
+
+| Run | Preservation | Coverage | Avg labels/text | Notes |
+|-----|--------------|----------|------------------|-------|
+| Baseline (0.4/0.3) | 72.50% | 81.3% | 2.53 | Original vs Original |
+| + Per‑SDG thresholds + fallback | 75.57% | 85.8% | 2.57 | F1‑optimal per‑SDG map + fallback 0.28/0.30 |
+
+Per‑SDG Highlights
+- Strong preservation/precision: SDG 14, 6, 7, 13, 5.
+- Generic SDGs (8/9/10/12) show lower precision; can tighten thresholds if precision is prioritized.
+
+Files of Record
+- Baseline results: `data/processed/similarity_multilabel_embeddings_p0.4_s0.3.csv`
+- Refined run: `data/processed/similarity_multilabel_embeddings_p0.4_s0.3_fbt10.28_t20.3_psdg.csv`
+- Per‑SDG thresholds: `data/analysis/per_sdg_thresholds_f1.json`
+- Overlap analysis outputs: `data/analysis/sdg_overlap_analysis.*`
+
+Recommendation
+- Adopt Approach 1 with per‑SDG thresholds + fallback in production.
+- If precision is the priority for SDGs 8/9/10/12, switch to precision‑prior thresholds (e.g., 8:0.57, 9:0.56, 10:0.60, 12:0.59) while keeping fallback.
+
+Next Steps
+- Optional: run precision‑prior map for 8/9/10/12 and compare PR trade‑offs.
+- Add light keyword boosts or margin filters if needed; maintain max labels cap = 5.
+
+---
+
 # SDG Multi-Label Classification Research Notes
 
 ## Project Overview
