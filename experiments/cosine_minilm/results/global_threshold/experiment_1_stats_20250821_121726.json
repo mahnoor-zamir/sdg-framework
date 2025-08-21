@@ -1,0 +1,38 @@
+{
+  "experiment_config": {
+    "embedding_model": "all-MiniLM-L6-v2",
+    "distance_metric": "cosine",
+    "primary_threshold": 0.4,
+    "secondary_threshold": 0.3,
+    "max_labels_per_text": 5,
+    "experiment_name": "cosine_minilm_global_threshold"
+  },
+  "assignment_stats": {
+    "primary_assignments": 17872,
+    "secondary_assignments": 27064,
+    "total_assignments": 43301,
+    "texts_with_labels": 13952,
+    "zero_label_texts": 3296
+  },
+  "evaluation_metrics": {
+    "sample_based": {
+      "precision": 0.4118274560397554,
+      "recall": 0.8724913990825688,
+      "f1_score": 0.508340500764526,
+      "jaccard": 0.4118274560397554
+    },
+    "label_based": {
+      "micro_precision": 0.2811251472252373,
+      "micro_recall": 0.705762987012987,
+      "micro_f1": 0.40208756544286445,
+      "macro_precision": 0.3039008277520711,
+      "macro_recall": 0.6291109394223589,
+      "macro_f1": 0.37946866346246577
+    },
+    "conservation_rate": 0.705762987012987,
+    "coverage_rate": 0.8089053803339518
+  },
+  "timestamp": "20250821_121726",
+  "total_texts": 17248,
+  "avg_labels_per_text": 2.510493970315399
+}
