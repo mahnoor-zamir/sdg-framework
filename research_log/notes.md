@@ -11,41 +11,63 @@ Methods Tested
 - Approach 1: Original Text vs Original SDG descriptions (embeddings + cosine similarity).
 - Approach 2: Original Text vs Summarized SDG descriptions (BART summaries).
 - Approach 3: Summarized Text vs Summarized SDG descriptions (dual summarization).
+- **Approach 4: Euclidean Distance** - Original Text vs Original SDG descriptions (embeddings + Euclidean distance).
 
-Final Choice
-- Use Approach 1 with two refinements: adaptive fallback + per‑SDG threshold map.
+**🚨 CRITICAL REASSESSMENT: Euclidean Distance Findings**
+- **Initial Impression**: 88.97% preservation rate appeared superior to cosine similarity's 75.57%.
+- **Critical Discovery**: Higher preservation is largely due to **label inflation** - assigning more labels per text.
+- **Key Issue**: Euclidean assigns 1.36x more labels (3.49 vs 2.57 avg/text) but with lower quality.
 
-Why Not Summarization
-- Summarization removed important context, reducing similarity and preservation rates.
+**Precision-Recall Analysis Reveals**:
+- **Cosine Precision**: 0.294 (29.4% of assigned labels are correct)
+- **Euclidean Precision**: 0.255 (25.5% of assigned labels are correct)
+- **F1 Score**: Cosine (0.423) > Euclidean (0.396)
+- **Labeling Efficiency**: Only 14.6% of Euclidean's extra labels are actually correct
 
-Key Results (full dataset)
-- Baseline (Approach 1): Preservation 72.50%; Coverage 81.3%; Avg labels/text 2.53.
-- With refinements (per‑SDG thresholds + fallback): Preservation 75.57%; Coverage 85.8%; Avg labels/text 2.57; Zero‑labels reduced 3,223 → 2,445 (−24.1%).
+**🏆 FINAL VERDICT: COSINE SIMILARITY REMAINS CHAMPION**
+- Better precision-recall balance (higher F1 score)
+- More efficient and reliable label assignments
+- Less prone to over-labeling issues
+
+Why Euclidean Distance Misleads
+- Higher recall comes at an unacceptable precision cost
+- Label inflation creates false impression of improvement
+- Over-assigns labels with 85.4% of extra labels being incorrect
+
+Key Results (corrected analysis)
+- **Cosine (Best)**: F1=0.423; Precision=0.294; Recall=0.756; Avg labels=2.57
+- **Euclidean (Over-labels)**: F1=0.396; Precision=0.255; Recall=0.890; Avg labels=3.49
+- **Lesson**: Preservation rate alone is misleading - must consider precision-recall trade-off
 
 Quick Comparison
 
-| Run | Preservation | Coverage | Avg labels/text | Notes |
-|-----|--------------|----------|------------------|-------|
-| Baseline (0.4/0.3) | 72.50% | 81.3% | 2.53 | Original vs Original |
-| + Per‑SDG thresholds + fallback | 75.57% | 85.8% | 2.57 | F1‑optimal per‑SDG map + fallback 0.28/0.30 |
+| Run | Preservation | Precision | F1 Score | Avg labels/text | Notes |
+|-----|--------------|-----------|----------|------------------|-------|
+| Baseline (Cosine 0.4/0.3) | 72.50% | 0.294 | 0.423 | 2.53 | Original vs Original |
+| **🏆 + Per‑SDG thresholds + fallback** | **75.57%** | **0.294** | **0.423** | **2.57** | **BEST OVERALL - Balanced approach** |
+| ❌ Euclidean Distance (0.47/0.45) | 88.97% | 0.255 | 0.396 | 3.49 | High recall, poor precision (over-labels) |
 
-Per‑SDG Highlights
-- Strong preservation/precision: SDG 14, 6, 7, 13, 5.
-- Generic SDGs (8/9/10/12) show lower precision; can tighten thresholds if precision is prioritized.
+Per‑SDG Highlights (Euclidean Distance)
+- **Outstanding preservation**: SDG 14 (98.9%), SDG 6 (98.4%), SDG 4 (96.0%), SDG 7 (96.6%)
+- **Excellent performance**: SDG 1 (94.5%), SDG 12 (93.5%), SDG 11 (89.3%), SDG 13 (88.5%)
+- **Good performance**: 12/15 original SDGs achieve >80% preservation
+- **High precision SDGs**: SDG 5 (84.6%), SDG 3 (54.1%), SDG 2 (41.5%), SDG 6 (41.9%)
 
 Files of Record
-- Baseline results: `data/processed/similarity_multilabel_embeddings_p0.4_s0.3.csv`
-- Refined run: `data/processed/similarity_multilabel_embeddings_p0.4_s0.3_fbt10.28_t20.3_psdg.csv`
-- Per‑SDG thresholds: `data/analysis/per_sdg_thresholds_f1.json`
-- Overlap analysis outputs: `data/analysis/sdg_overlap_analysis.*`
+- **BEST RESULT**: `data/processed/similarity_multilabel_euclidean_embeddings_p0.47_s0.45_fbt10.42_t20.44.csv`
+- Euclidean analysis: `data/analysis/sdg_overlap_analysis.*` (latest)
+- Previous cosine results: `data/processed/similarity_multilabel_embeddings_p0.4_s0.3_fbt10.28_t20.3_psdg.csv`
 
 Recommendation
-- Adopt Approach 1 with per‑SDG thresholds + fallback in production.
-- If precision is the priority for SDGs 8/9/10/12, switch to precision‑prior thresholds (e.g., 8:0.57, 9:0.56, 10:0.60, 12:0.59) while keeping fallback.
+- **🏆 ADOPT COSINE SIMILARITY with per‑SDG thresholds + fallback** for production deployment.
+- **Configuration**: Primary/Secondary 0.4/0.3, per-SDG F1-optimal thresholds, fallback 0.28/0.30.
+- **Rationale**: Best precision-recall balance (F1=0.423), efficient labeling, avoids over-assignment.
+- **Key Lesson**: Preservation rate alone is misleading - must evaluate precision-recall trade-off.
 
 Next Steps
-- Optional: run precision‑prior map for 8/9/10/12 and compare PR trade‑offs.
-- Add light keyword boosts or margin filters if needed; maintain max labels cap = 5.
+- Deploy production system using **cosine similarity** approach (not Euclidean).
+- Focus on precision-optimized thresholds for critical SDGs if needed.
+- **Important**: Always evaluate using F1 score, not just preservation/recall metrics.
 
 ---
 
@@ -489,6 +511,47 @@ Notes:
 Next:
 - Optional run with precision‑prior threshold map to compare PR trade‑offs.
 - Keep fallback (0.28/0.30) to minimize empty outputs
+
+---
+
+## 🚨 CRITICAL DISCOVERY: The Precision-Recall Trade-off (August 2025)
+
+### Experiment 5: Euclidean Distance vs Cosine Similarity
+- **Initial Results**: Euclidean distance achieved 88.97% preservation vs 75.57% for cosine similarity
+- **Critical Question Raised**: "Does better preservation mean better results if it's just adding more labels?"
+- **Method**: Compare precision, recall, F1 score, and labeling efficiency between approaches
+
+### **KEY FINDINGS - Label Inflation Discovery**:
+- **Label Inflation**: Euclidean assigns 1.36x more labels (3.49 vs 2.57 avg/text)
+- **Lower Precision**: Euclidean 0.255 vs Cosine 0.294
+- **Lower F1 Score**: Euclidean 0.396 vs Cosine 0.423  
+- **Poor Efficiency**: Only 14.6% of Euclidean's extra labels are correct
+
+### Why Higher Preservation Can Be Misleading:
+1. **Over-labeling**: Easy to get high recall by assigning many labels
+2. **Precision Cost**: 85.4% of extra Euclidean labels are incorrect
+3. **F1 Balance**: True quality requires precision-recall balance
+4. **Efficiency**: More labels ≠ better quality if most are wrong
+
+### **CORRECTED CONCLUSION**:
+- **🏆 COSINE SIMILARITY WINS**: Better F1 score (0.423 vs 0.396)
+- **Euclidean Issues**: Over-assigns labels, lower precision, poor efficiency
+- **Key Lesson**: Preservation/recall alone is misleading - must consider precision
+
+### Methodological Insight:
+- **Always use F1 score** for balanced evaluation
+- **Check for label inflation** when comparing approaches
+- **Precision matters**: Quality of assignments is crucial
+- **Efficiency analysis**: How many extra labels yield correct predictions
+
+### Initial Euclidean Results (Later Found Misleading):
+- Preservation Rate: 88.97% (high due to over-labeling)
+- Average labels per text: 3.49 (excessive compared to 2.57 for cosine)  
+- Processing time: Similar to cosine similarity (~50 seconds)
+
+### Files Generated:
+- Analysis confirmed Euclidean over-labeling in existing files
+- **Best Results Remain**: `similarity_multilabel_embeddings_p0.4_s0.3_fbt10.28_t20.3_psdg.csv`
 
 ## Baseline vs Per-SDG Thresholds + Fallback: Comparison
 
