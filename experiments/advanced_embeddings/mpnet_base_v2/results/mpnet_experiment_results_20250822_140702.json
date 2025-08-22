@@ -1,0 +1,45 @@
+{
+  "experiment": "advanced_embeddings_mpnet",
+  "timestamp": "20250822_140702",
+  "configuration": {
+    "target_model": "all-mpnet-base-v2",
+    "baseline_model": "all-MiniLM-L6-v2",
+    "primary_threshold": 0.4,
+    "secondary_threshold": 0.3,
+    "dataset_size": 17248
+  },
+  "results": {
+    "mpnet": {
+      "model": "all-mpnet-base-v2",
+      "f1_score": 0.3253749256930295,
+      "precision": 0.21183018402957973,
+      "recall": 0.8558093692022264,
+      "micro_f1": 0.23126938865039326,
+      "macro_f1": 0.23055672696845503,
+      "coverage": 0.8843344155844156,
+      "avg_labels_per_text": 6.400974025974026,
+      "total_texts": 17248,
+      "assignment_stats": {
+        "primary_only": 656,
+        "primary_secondary": 14597,
+        "zero_labels": 1995
+      }
+    },
+    "baseline": {
+      "model": "all-MiniLM-L6-v2",
+      "f1_score": 0.42521384468178447,
+      "precision": 0.33774232957048506,
+      "recall": 0.7312731910946196,
+      "micro_f1": 0.32609004769968586,
+      "macro_f1": 0.31978158596540096,
+      "coverage": 0.8089053803339518,
+      "avg_labels_per_text": 3.4850997217068644,
+      "total_texts": 17248,
+      "assignment_stats": {
+        "primary_only": 839,
+        "primary_secondary": 13113,
+        "zero_labels": 3296
+      }
+    }
+  }
+}

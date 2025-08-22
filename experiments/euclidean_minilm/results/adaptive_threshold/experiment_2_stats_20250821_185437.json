@@ -1,0 +1,56 @@
+{
+  "experiment_config": {
+    "embedding_model": "all-MiniLM-L6-v2",
+    "distance_metric": "euclidean",
+    "target_avg_labels": 2.8,
+    "min_labels_per_text": 1,
+    "max_labels_per_text": 4,
+    "fallback_threshold": 1.25,
+    "experiment_name": "euclidean_minilm_adaptive_threshold",
+    "primary_threshold": 1.1290281414985657,
+    "secondary_threshold": 1.2100085496902466,
+    "primary_percentile": 10.000136418203645,
+    "secondary_percentile": 28.00017734366474
+  },
+  "assignment_stats": {
+    "primary_assignments": 22957,
+    "secondary_assignments": 23232,
+    "fallback_assignments": 1203,
+    "breakdown": {
+      "primary_only": 3474,
+      "primary_secondary": 11686,
+      "fallback_used": 1203,
+      "none": 885
+    },
+    "total_assignments": 47392,
+    "texts_with_labels": 16363,
+    "zero_label_texts": 885
+  },
+  "evaluation_metrics": {
+    "sample_based": {
+      "precision": 0.37454100958565245,
+      "recall": 0.8285018552875696,
+      "f1_score": 0.4752299783549783,
+      "jaccard": 0.37454100958565245
+    },
+    "label_based": {
+      "micro_precision": 0.3015276839972991,
+      "micro_recall": 0.8285018552875696,
+      "micro_f1": 0.44214108910891087,
+      "macro_precision": 0.33230035359705434,
+      "macro_recall": 0.7339346359763562,
+      "macro_f1": 0.4246154514804766
+    }
+  },
+  "conservation_rate": 0.8285018552875696,
+  "coverage_rate": 0.9486897031539888,
+  "distance_stats": {
+    "avg_min_distance": 1.0963248014450073,
+    "primary_threshold": 1.1290281414985657,
+    "secondary_threshold": 1.2100085496902466,
+    "fallback_threshold": 1.25
+  },
+  "timestamp": "20250821_185437",
+  "total_texts": 17248,
+  "avg_labels_per_text": 2.7476808905380334
+}

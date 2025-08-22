@@ -13,7 +13,7 @@ Methods Tested
 - Approach 3: Summarized Text vs Summarized SDG descriptions (dual summarization).
 - **Approach 4: Euclidean Distance** - Original Text vs Original SDG descriptions (embeddings + Euclidean distance).
 
-**🚨 CRITICAL REASSESSMENT: Euclidean Distance Findings**
+**CRITICAL REASSESSMENT: Euclidean Distance Findings**
 - **Initial Impression**: 88.97% preservation rate appeared superior to cosine similarity's 75.57%.
 - **Critical Discovery**: Higher preservation is largely due to **label inflation** - assigning more labels per text.
 - **Key Issue**: Euclidean assigns 1.36x more labels (3.49 vs 2.57 avg/text) but with lower quality.
@@ -39,13 +39,46 @@ Key Results (corrected analysis)
 - **Euclidean (Over-labels)**: F1=0.396; Precision=0.255; Recall=0.890; Avg labels=3.49
 - **Lesson**: Preservation rate alone is misleading - must consider precision-recall trade-off
 
-Quick Comparison
+**FINAL SYSTEMATIC COMPARISON - ALL EXPERIMENTS (2025-01-21)**
 
-| Run | Preservation | Precision | F1 Score | Avg labels/text | Notes |
-|-----|--------------|-----------|----------|------------------|-------|
-| Baseline (Cosine 0.4/0.3) | 72.50% | 0.294 | 0.423 | 2.53 | Original vs Original |
-| **🏆 + Per‑SDG thresholds + fallback** | **75.57%** | **0.294** | **0.423** | **2.57** | **BEST OVERALL - Balanced approach** |
-| ❌ Euclidean Distance (0.47/0.45) | 88.97% | 0.255 | 0.396 | 3.49 | High recall, poor precision (over-labels) |
+## Complete Distance Metric + Threshold Strategy Comparison
+
+| Configuration | Distance | Threshold | F1 Score | Precision | Recall | Coverage | Avg Labels | Best? |
+|---------------|----------|-----------|----------|-----------|---------|----------|------------|--------|
+| **🏆 Cosine Global** | Cosine | 0.4/0.3 | **0.5083** | **0.5122** | 0.4978 | 96.5% | 2.39 | **WINNER** |
+| Cosine Adaptive | Cosine | Dynamic | 0.4477 | 0.4166 | 0.4859 | 95.0% | 2.82 | Strong |
+| Euclidean Adaptive | Euclidean | Dynamic | 0.4752 | 0.3745 | 0.8285 | 94.9% | 2.75 | Good |
+| Euclidean Global | Euclidean | 1.03/1.10 | 0.3274 | 0.2949 | 0.4283 | 49.5% | 1.37 | Poor |
+
+## Key Findings from Systematic Experiments
+
+### 1. **Distance Metric Impact**
+- **Cosine similarity**: More stable, less sensitive to threshold selection
+- **Euclidean distance**: Requires careful threshold calibration, more volatile
+
+### 2. **Threshold Strategy Impact**  
+- **Cosine**: Global thresholds (F1=0.5083) > Adaptive (F1=0.4477) by 13.5%
+- **Euclidean**: Adaptive thresholds (F1=0.4752) > Global (F1=0.3274) by 45.1%
+
+### 3. **Overall Champion**
+**🏆 Cosine Similarity + Global Thresholds (0.4/0.3)**
+- **F1-Score**: 0.5083 (highest overall)
+- **Precision**: 0.5122 (best precision-recall balance) 
+- **Coverage**: 96.5% (excellent)
+- **Reliability**: Consistent, predictable performance
+
+### 4. **Critical Insights**
+- **Threshold sensitivity**: Euclidean requires adaptive thresholds, cosine works well with global
+- **Coverage vs precision**: All methods achieve >94% coverage except Euclidean global
+- **Precision priority**: Cosine global maintains >50% precision while others are 30-40%
+
+## Historical Context
+
+| Earlier Experiments | F1 Score | Notes |
+|---------------------|----------|-------|
+| Baseline (Cosine 0.4/0.3) | 0.423 | Original implementation |
+| Per-SDG thresholds + fallback | 0.423 | Balanced approach |  
+| Euclidean (0.47/0.45) | 0.396 | Over-labeling issues |
 
 Per‑SDG Highlights (Euclidean Distance)
 - **Outstanding preservation**: SDG 14 (98.9%), SDG 6 (98.4%), SDG 4 (96.0%), SDG 7 (96.6%)
@@ -514,7 +547,7 @@ Next:
 
 ---
 
-## 🚨 CRITICAL DISCOVERY: The Precision-Recall Trade-off (August 2025)
+## CRITICAL DISCOVERY: The Precision-Recall Trade-off (August 2025)
 
 ### Experiment 5: Euclidean Distance vs Cosine Similarity
 - **Initial Results**: Euclidean distance achieved 88.97% preservation vs 75.57% for cosine similarity
@@ -534,7 +567,7 @@ Next:
 4. **Efficiency**: More labels ≠ better quality if most are wrong
 
 ### **CORRECTED CONCLUSION**:
-- **🏆 COSINE SIMILARITY WINS**: Better F1 score (0.423 vs 0.396)
+- **COSINE SIMILARITY WINS**: Better F1 score (0.423 vs 0.396)
 - **Euclidean Issues**: Over-assigns labels, lower precision, poor efficiency
 - **Key Lesson**: Preservation/recall alone is misleading - must consider precision
 

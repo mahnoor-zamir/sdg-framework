@@ -1,0 +1,81 @@
+{
+  "timestamp": "20250822_114040",
+  "dataset_size": 17248,
+  "model": "all-MiniLM-L6-v2",
+  "cosine_grid_search": {
+    "n_combinations": 40,
+    "best_f1": 0.45281681886933733,
+    "mean_f1": 0.23589944045777472,
+    "std_f1": 0.09245432714249395,
+    "best_config": {
+      "primary_threshold": 0.35714285714285715,
+      "secondary_threshold": 0.15,
+      "distance_metric": "cosine",
+      "f1_score": 0.45281681886933733,
+      "precision": 0.37760081137736173,
+      "recall": 0.6475243506493507,
+      "coverage": 0.9909554730983302,
+      "avg_labels": 3.772727272727273
+    }
+  },
+  "euclidean_grid_search": {
+    "n_combinations": 40,
+    "best_f1": 0.8341337021821715,
+    "mean_f1": 0.2151736847336337,
+    "std_f1": 0.2513728237532617,
+    "best_config": {
+      "primary_threshold": 0.85,
+      "secondary_threshold": 1.35,
+      "distance_metric": "euclidean",
+      "f1_score": 0.8341337021821715,
+      "precision": 0.8329506802721088,
+      "recall": 0.8360099721706865,
+      "coverage": 0.9990723562152134,
+      "avg_labels": 2.003884508348794
+    }
+  },
+  "train_test_validation": {
+    "cosine": {
+      "train_f1": 0.28003911579098795,
+      "test_f1": 0.28194862678920657,
+      "degradation": -0.006818729565064827,
+      "best_thresholds": [
+        0.45,
+        0.25
+      ],
+      "test_metrics": {
+        "f1_score": 0.28194862678920657,
+        "precision": 0.25818045883263274,
+        "recall": 0.3322705314009662,
+        "coverage": 0.9103381642512077,
+        "avg_labels": 2.1656038647342997
+      }
+    },
+    "euclidean": {
+      "train_f1": 0.4103247571979453,
+      "test_f1": 0.4127631595457682,
+      "degradation": -0.005942615708772783,
+      "best_thresholds": [
+        0.95,
+        1.25
+      ],
+      "test_metrics": {
+        "f1_score": 0.4127631595457682,
+        "precision": 0.40524745034889953,
+        "recall": 0.42589371980676327,
+        "coverage": 0.9489855072463768,
+        "avg_labels": 1.8908212560386473
+      }
+    }
+  },
+  "statistical_analysis": {
+    "p_value": 0.6016755253802235,
+    "cohens_d": 0.1108291970341982,
+    "effect_size": "Small",
+    "significant": "False",
+    "cosine_mean": 0.23589944045777472,
+    "euclidean_mean": 0.2151736847336337,
+    "cosine_std": 0.09129133333557468,
+    "euclidean_std": 0.24821077556916452
+  }
+}
