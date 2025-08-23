@@ -38,11 +38,24 @@ class SummarizedSDGClassifier:
         """Load the test dataset."""
         print("Loading test dataset...")
         
-        # Load the OSDG multilabel data
-        data_path = '/Users/mahnoorzamir/Desktop/mitacs/project/data/processed/osdg_multilabel_threshold_0.6.json'
-        with open(data_path, 'r') as f:
-            full_data = json.load(f)
-            self.data = full_data['data']  # Extract the data array
+        # Load the OSDG multilabel data (use CSV format like winning experiment)
+        data_path = '/Users/mahnoorzamir/Desktop/mitacs/project/data/processed/osdg_multilabel_threshold_0.6.csv'
+        import pandas as pd
+        osdg_df = pd.read_csv(data_path)
+        
+        # Convert to list format for compatibility with existing code
+        self.data = []
+        for _, row in osdg_df.iterrows():
+            # Extract SDG labels from binary columns (same as Experiment 1)
+            sdg_labels = []
+            for i in range(1, 18):
+                if row[f'sdg_{i}'] == 1:
+                    sdg_labels.append(i)
+            
+            self.data.append({
+                'text': row['text'],
+                'sdg_labels': sdg_labels
+            })
             
         # Use complete dataset  
         print(f"Using complete dataset: {len(self.data)} texts for classification")
