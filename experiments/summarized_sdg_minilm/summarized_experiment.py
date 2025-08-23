@@ -18,7 +18,8 @@ import pandas as pd
 import numpy as np
 from sentence_transformers import SentenceTransformer
 import json
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, precision_score, recall_score, f1_score
+from sklearn.metrics.pairwise import cosine_similarity
 from datetime import datetime
 import os
 
@@ -106,9 +107,10 @@ class SummarizedSDGClassifier:
         """Classify texts using cosine similarity with global thresholds."""
         print(f"\nRunning classification with {approach_name}...")
         
-        # Global thresholds (same as winning approach from previous experiments)
+        # Global thresholds (same as Experiment 1)
         PRIMARY_THRESHOLD = 0.4
         SECONDARY_THRESHOLD = 0.3
+        MAX_LABELS_PER_TEXT = 5  # Same as Experiment 1
         
         predictions = []
         true_labels = []
@@ -119,25 +121,35 @@ class SummarizedSDGClassifier:
         text_embeddings = self.model.encode(texts, batch_size=32, show_progress_bar=True)
         
         print("Running classification...")
+        
+        # Calculate similarity matrix using sklearn (same as Experiment 1)
+        similarity_matrix = cosine_similarity(text_embeddings, sdg_embeddings)
+        
         for i, item in enumerate(self.data):
-            text_embedding = text_embeddings[i]
             true_label = item['sdg_labels']  # Use 'sdg_labels' field
+            similarities = similarity_matrix[i]
             
-            # Calculate cosine similarities with all SDGs
-            similarities = []
-            for sdg_embedding in sdg_embeddings:
-                similarity = np.dot(text_embedding, sdg_embedding) / (
-                    np.linalg.norm(text_embedding) * np.linalg.norm(sdg_embedding)
-                )
-                similarities.append(similarity)
+            # Apply global thresholds (exact same logic as Experiment 1)
+            text_labels = []
             
-            # Apply global thresholds
-            predicted_labels = []
-            for sdg_idx, similarity in enumerate(similarities):
-                if similarity >= PRIMARY_THRESHOLD:
-                    predicted_labels.append(sdg_idx + 1)  # SDGs are 1-indexed
-                elif similarity >= SECONDARY_THRESHOLD:
-                    predicted_labels.append(sdg_idx + 1)
+            # Primary threshold assignments
+            primary_indices = np.where(similarities >= PRIMARY_THRESHOLD)[0]
+            text_labels.extend(primary_indices.tolist())
+            
+            # Secondary threshold assignments (if not already assigned AND under max_labels)
+            if len(text_labels) < MAX_LABELS_PER_TEXT:
+                secondary_indices = np.where(
+                    (similarities >= SECONDARY_THRESHOLD) & 
+                    (similarities < PRIMARY_THRESHOLD)
+                )[0]
+                
+                # Add secondary up to max_labels limit
+                remaining_slots = MAX_LABELS_PER_TEXT - len(text_labels)
+                secondary_to_add = secondary_indices[:remaining_slots]
+                text_labels.extend(secondary_to_add.tolist())
+            
+            # Convert to SDG numbers (1-indexed, same as Experiment 1)
+            predicted_labels = [idx + 1 for idx in text_labels[:MAX_LABELS_PER_TEXT]]
             
             predictions.append(predicted_labels)
             true_labels.append(true_label)
@@ -147,35 +159,49 @@ class SummarizedSDGClassifier:
         return results
     
     def calculate_metrics(self, predictions, true_labels, approach_name):
-        """Calculate classification metrics."""
+        """Calculate classification metrics using sample-based evaluation (like Experiment 1)."""
         print(f"Calculating metrics for {approach_name}...")
         
-        # Convert to binary format for sklearn metrics
-        all_labels = set()
-        for labels in true_labels + predictions:
-            all_labels.update(labels)
-        all_labels = sorted(list(all_labels))
+        # Create binary matrices for SDGs 1-17
+        n_texts = len(true_labels)
+        n_sdgs = 17
         
-        # Create binary matrices
-        y_true_binary = np.zeros((len(true_labels), len(all_labels)))
-        y_pred_binary = np.zeros((len(predictions), len(all_labels)))
+        y_true_binary = np.zeros((n_texts, n_sdgs))
+        y_pred_binary = np.zeros((n_texts, n_sdgs))
         
-        label_to_idx = {label: idx for idx, label in enumerate(all_labels)}
-        
+        # Fill true labels matrix
         for i, labels in enumerate(true_labels):
             for label in labels:
-                if label in label_to_idx:
-                    y_true_binary[i][label_to_idx[label]] = 1
+                if 1 <= label <= 17:
+                    y_true_binary[i][label - 1] = 1
         
+        # Fill predictions matrix
         for i, labels in enumerate(predictions):
             for label in labels:
-                if label in label_to_idx:
-                    y_pred_binary[i][label_to_idx[label]] = 1
+                if 1 <= label <= 17:
+                    y_pred_binary[i][label - 1] = 1
         
-        # Calculate metrics
-        precision, recall, f1, _ = precision_recall_fscore_support(
-            y_true_binary, y_pred_binary, average='micro', zero_division=0
-        )
+        # Sample-based metrics (same as Experiment 1)
+        sample_precision = []
+        sample_recall = []
+        sample_f1 = []
+        
+        from sklearn.metrics import precision_score, recall_score, f1_score
+        
+        for i in range(n_texts):
+            if y_pred_binary[i].sum() > 0:  # Only if predictions exist (same as Experiment 1)
+                prec = precision_score(y_true_binary[i], y_pred_binary[i], average='binary', zero_division=0)
+                rec = recall_score(y_true_binary[i], y_pred_binary[i], average='binary', zero_division=0)
+                f1 = f1_score(y_true_binary[i], y_pred_binary[i], average='binary', zero_division=0)
+                
+                sample_precision.append(prec)
+                sample_recall.append(rec)
+                sample_f1.append(f1)
+        
+        # Average sample-based metrics (same as Experiment 1)
+        precision = np.mean(sample_precision) if sample_precision else 0
+        recall = np.mean(sample_recall) if sample_recall else 0
+        f1 = np.mean(sample_f1) if sample_f1 else 0
         
         # Calculate additional metrics
         total_predictions = sum(len(pred) for pred in predictions)
