@@ -1,0 +1,18 @@
+# Advanced Embeddings Models Requirements
+# Install with: pip install -r requirements.txt
+
+# Core dependencies
+sentence-transformers>=2.2.0
+scikit-learn>=1.0.0
+pandas>=1.3.0
+numpy>=1.21.0
+
+# Visualization
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Progress tracking
+tqdm>=4.60.0
+
+# Data processing
+scipy>=1.7.0
