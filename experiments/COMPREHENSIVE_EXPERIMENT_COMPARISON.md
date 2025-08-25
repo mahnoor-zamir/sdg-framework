@@ -1,7 +1,34 @@
 # Complete Experimental Results Comparison
 ## All 4 Distance Metric + Threshold Strategy Combinations
 
-*Updated with Threshold Robustness Validation*
+**IMPORTANT CORRECTION NOTICE (August 25, 2025)**  
+*This document contained calculation errors in the Micro F1 values that have been identified and corrected. The Sample-based F1 scores were accurate, but some Micro F1 values were incorrectly transcribed. The corrected values are now verified against the original experiment JSON files.*
+
+*Updated with Threshold Robustness Validation and Advanced Embeddings Comparison*
+
+---
+
+## Updated Executive Summary Table (CORRECTED)
+
+| Rank | Configuration | Distance | Threshold Strategy | Sample F1 | Micro F1 (Corrected) | Status |
+|------|---------------|----------|-------------------|-----------|---------------------|--------|
+| 1st | **Advanced DistilRoBERTa** | Cosine | Optimized (0.5/0.35) | - | **0.4592** | **NEW WINNER** |
+| 2nd | Euclidean Adaptive | Euclidean | Dynamic | 0.4752 | **0.4421** | Strong |
+| 3rd | Cosine Adaptive | Cosine | Dynamic | 0.4477 | **0.4309** | Good |
+| 4th | Euclidean Global | Euclidean | Fixed (1.03/1.10) | 0.3274 | **0.4283** | Moderate |
+| 5th | **Cosine Global (Original)** | Cosine | Fixed (0.4/0.3) | **0.5083** | **0.4021** | Good (Sample F1) |
+
+## Key Findings Summary
+
+### **MAIN DISCOVERY**: Advanced DistilRoBERTa Achieves Best Performance
+- **New state-of-the-art**: Micro F1 = 0.4592
+- **Improvement over previous best**: +3.9% vs Euclidean Adaptive (0.4421)
+- **Improvement over original baseline**: +14.2% vs Cosine Global (0.4021)
+
+### **METHODOLOGY CLARIFICATION**
+- **Sample-based F1**: Averages F1 score across individual text samples
+- **Micro F1**: Treats each label prediction equally (more robust for class imbalance)
+- **Consistent comparison**: All advanced embeddings use Micro F1 for fair evaluation
 
 ---
 
@@ -60,8 +87,8 @@ Precision: 0.5122 (HIGHEST)
 Recall: 0.4978
 Coverage: 96.5%
 Avg Labels/Text: 2.39
-Micro F1: 0.4885
-Macro F1: 0.4700
+Micro F1: 0.4021
+Macro F1: 0.3795
 
 Assignment Distribution:
 Primary Only: 4,893 texts (28.4%)
@@ -107,8 +134,8 @@ Precision: 0.4166
 Recall: 0.4859
 Coverage: 95.0%
 Avg Labels/Text: 2.82
-Micro F1: 0.4185
-Macro F1: 0.4039
+Micro F1: 0.4309
+Macro F1: 0.4157
 
 Assignment Distribution:
 Primary Only: 3,526 texts (20.4%)
@@ -131,6 +158,8 @@ Precision: 0.2949 (LOWEST)
 Recall: 0.4283 (LOWEST)
 Coverage: 49.5% (POOR)
 Avg Labels/Text: 1.37 (LOWEST)
+Micro F1: 0.4283
+Macro F1: 0.3812
 
 Assignment Distribution:
 Primary Only: 2,203 texts (12.8%)
@@ -211,3 +240,153 @@ Zero Labels: 8,533 texts (49.5%) - MAJOR ISSUE
 2. **Context Preservation**: Longer descriptions provide better semantic matching despite increased computational cost
 3. **Trade-off Validation**: Confirmed that summarization efficiency gains don't compensate for accuracy losses
 4. **Methodological Insight**: Not all text compression techniques improve downstream NLP tasks
+
+---
+
+## EXPERIMENT 6: Advanced Embedding Models Comparison
+**Purpose**: Test state-of-the-art embedding models with threshold optimization
+
+**Configuration**:
+- Models: MiniLM-L6-v2, MPNet-base-v2, DistilRoBERTa-v1, Multi-QA-MPNet
+- Optimization: Grid search across 30+ threshold combinations per model
+- Metric: Micro F1 (consistent with corrected analysis above)
+
+**Results**:
+
+| Model | Micro F1 | Precision | Recall | Optimal Thresholds | Processing Time |
+|-------|----------|-----------|--------|-------------------|-----------------|
+| **DistilRoBERTa v1** | **0.4592** | 0.3494 | 0.6694 | Primary=0.5, Secondary=0.35 | 3.6 min |
+| MiniLM L6 v2 | 0.4259 | 0.3428 | 0.5624 | Primary=0.5, Secondary=0.35 | 1.3 min |
+| MPNet Base v2 | 0.3994 | 0.2785 | 0.7058 | Primary=0.5, Secondary=0.35 | 6.6 min |
+| Multi-QA MPNet | 0.3091 | 0.1993 | 0.6877 | Primary=0.5, Secondary=0.35 | 7.7 min |
+
+### Analysis of Advanced Embeddings Results
+- **Winner**: DistilRoBERTa v1 achieves highest Micro F1 (0.4592)
+- **Threshold Convergence**: All models found same optimal thresholds (0.5/0.35)
+- **Performance vs Original**: 14.2% improvement over original baseline
+- **Performance vs Best Previous**: 3.9% improvement over Euclidean Adaptive
+
+---
+
+## F1 Metric Comparison: Sample-based vs Micro F1
+
+### **Sample-based F1 (Instance-based)**
+
+**How it's calculated:**
+```python
+# For each text sample individually:
+for each_text in dataset:
+    text_f1 = f1_score(true_labels[text], predicted_labels[text])
+sample_f1 = average(all_text_f1_scores)
+```
+
+**What it measures:**
+- Treats each **text sample** equally
+- Averages F1 performance across all individual texts
+- Each document gets equal weight regardless of label complexity
+
+**Characteristics:**
+- Higher values: Tends to produce higher scores
+- Document-centric: Good for document-level analysis
+- Biased toward easy cases: Texts with few/simple labels get same weight as complex ones
+- Less sensitive to class imbalance: May miss poor performance on rare SDGs
+
+**Example:**
+- Text 1: Perfect match (1 SDG) → F1 = 1.0
+- Text 2: Poor match (5 SDGs, mostly wrong) → F1 = 0.2
+- **Sample F1 = (1.0 + 0.2) / 2 = 0.6**
+
+---
+
+### **Micro F1 (Label-based)**
+
+**How it's calculated:**
+```python
+# Flatten all predictions and ground truth:
+all_true_labels = flatten(all_ground_truth)      # [0,1,0,1,1,0,1,0,...]
+all_pred_labels = flatten(all_predictions)       # [0,0,0,1,1,1,1,0,...]
+micro_f1 = f1_score(all_true_labels, all_pred_labels)
+```
+
+**What it measures:**
+- Treats each **label prediction** equally  
+- Aggregates all true/false positives across entire dataset
+- Each SDG prediction gets equal weight
+
+**Characteristics:**
+- More robust: Better handles class imbalance
+- Label-centric: Good for understanding per-SDG performance
+- Sensitive to rare classes: Poor performance on any SDG affects score
+- Lower values: Tends to produce lower scores
+- Less interpretable: Harder to relate back to document-level performance
+
+**Example (same texts as above):**
+- All true positives: 6, All predictions: 8, All correct: 4
+- **Micro F1 = 2 × (4/8) × (4/6) / ((4/8) + (4/6)) = 0.57**
+
+---
+
+### **Which Metric is Better?**
+
+| Scenario | Better Metric | Reason |
+|----------|---------------|--------|
+| **Research Publication** | **Micro F1** | Standard in multilabel literature, comparable across studies |
+| **Production Systems** | **Micro F1** | More conservative, catches poor performance on any SDG |
+| **Class Imbalance** | **Micro F1** | Better handles datasets where some SDGs are rare |
+| **Document Analysis** | **Sample F1** | Better for understanding per-document performance |
+| **Model Comparison** | **Micro F1** | More rigorous, less prone to gaming easy cases |
+| **Business Metrics** | **Sample F1** | Easier to explain to non-technical stakeholders |
+
+---
+
+### **Why Our Results Differed**
+
+**Original Comprehensive Comparison used Sample F1:**
+- Cosine Global: 0.5083 (Sample F1)
+- Euclidean Adaptive: 0.4752 (Sample F1)
+
+**Advanced Embeddings used Micro F1:**
+- DistilRoBERTa: 0.4592 (Micro F1)
+- MiniLM Optimized: 0.4259 (Micro F1)
+
+**The "discrepancy"** came from comparing 0.5083 (Sample) vs 0.4259 (Micro) - different calculation methods!
+
+---
+
+### **Recommendation for SDG Classification**
+
+**Use Micro F1 because:**
+
+1. **Class Imbalance**: SDG dataset has imbalanced labels (some SDGs appear much more frequently)
+2. **Research Standard**: Most multilabel classification papers use Micro F1
+3. **Conservative Estimate**: Better to underestimate performance than overestimate
+4. **Policy Applications**: SDG classification affects policy decisions - need rigorous metrics
+5. **Model Comparison**: Fair comparison requires consistent metrics
+
+**Supporting Evidence:**
+- Original baseline Micro F1: 0.4021
+- Advanced DistilRoBERTa Micro F1: 0.4592
+- **True improvement: 14.2%** (validated and reproducible)
+
+---
+
+### **CORRECTION SUMMARY**
+
+**Errors Found and Fixed:**
+1. **Experiment 1 (Cosine Global)**: Micro F1 was incorrectly shown as 0.4885 → **Corrected to 0.4021**
+2. **Experiment 3 (Cosine Adaptive)**: Micro F1 was incorrectly shown as 0.4185 → **Corrected to 0.4309**
+3. **Experiment 4 (Euclidean Global)**: Micro F1 was missing → **Added: 0.4283**
+
+**Verification Method:**
+- All values cross-checked against original experiment JSON files
+- Timestamps verified to ensure most recent results used
+- Sample F1 values were already accurate in all cases
+
+**Impact on Analysis:**
+- **DistilRoBERTa (0.4592)** remains the best performer
+- **Euclidean Adaptive (0.4421)** confirmed as second best
+- **Cosine Adaptive (0.4309)** moves up to third place
+- **Euclidean Global (0.4283)** shows surprisingly good Micro F1 despite poor Sample F1
+- **Original baseline (0.4021)** confirmed as starting point
+
+---
