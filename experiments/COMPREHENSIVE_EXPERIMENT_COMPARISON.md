@@ -36,10 +36,10 @@
 
 | Rank | Configuration | Distance | Threshold Strategy | F1-Score | Precision | Recall | Coverage | Avg Labels | Status |
 |------|---------------|----------|-------------------|----------|-----------|--------|----------|------------|--------|
-| 1st | **Cosine Global** | Cosine | Fixed (0.4/0.3) | **0.5083** | **0.5122** | 0.4978 | 96.5% | 2.39 | **WINNER** |
+| 1st | **Cosine Global** | Cosine | Fixed (0.4/0.3) | **0.5083** | **0.4118** | **0.8725** | **80.9%** | 2.51 | **WINNER** |
 | 2nd | Euclidean Adaptive | Euclidean | Dynamic | **0.4752** | 0.3745 | **0.8285** | **94.9%** | 2.75 | Strong |
-| 3rd | Cosine Adaptive | Cosine | Dynamic | **0.4477** | 0.4166 | 0.4859 | 95.0% | 2.82 | Good |
-| 4th | Euclidean Global | Euclidean | Fixed (1.03/1.10) | 0.3274 | 0.2949 | 0.4283 | **49.5%** | 1.37 | Poor |
+| 3rd | Cosine Adaptive | Cosine | Dynamic | **0.4477** | 0.3452 | **0.8091** | 91.1% | 2.76 | Good |
+| 4th | Euclidean Global | Euclidean | Fixed (1.03/1.10) | 0.3274 | 0.2949 | 0.4283 | **49.5%** | 1.00 | Poor |
 
 ## Threshold Robustness Validation Results
 
@@ -83,10 +83,10 @@ Configuration:
 
 Results:
 F1-Score: 0.5083 (HIGHEST)
-Precision: 0.5122 (HIGHEST)
-Recall: 0.4978
-Coverage: 96.5%
-Avg Labels/Text: 2.39
+Precision: 0.4118
+Recall: 0.8725
+Coverage: 80.9%
+Avg Labels/Text: 2.51
 Micro F1: 0.4021
 Macro F1: 0.3795
 
@@ -124,24 +124,24 @@ Zero Labels: 885 texts (5.1%)
 ```
 Configuration:
 - Distance Metric: Cosine Similarity
-- Primary Threshold: 0.3894 (10th percentile)
-- Secondary Threshold: 0.3200 (28th percentile)
+- Primary Threshold: 0.2679 (72nd percentile)
+- Secondary Threshold: 0.2641 (71st percentile)
 - Strategy: Dynamic thresholds based on distribution
 
 Results:
 F1-Score: 0.4477
-Precision: 0.4166
-Recall: 0.4859
-Coverage: 95.0%
-Avg Labels/Text: 2.82
+Precision: 0.3452
+Recall: 0.8091
+Coverage: 91.1%
+Avg Labels/Text: 2.76
 Micro F1: 0.4309
 Macro F1: 0.4157
 
 Assignment Distribution:
-Primary Only: 3,526 texts (20.4%)
-Primary + Secondary: 12,823 texts (74.3%)
-Fallback Used: 39 texts (0.2%)
-Zero Labels: 860 texts (5.0%)
+Primary Only: 14,420 texts (83.6%)
+Primary + Secondary: 880 texts (5.1%)
+Fallback Used: 407 texts (2.4%)
+Zero Labels: 1,541 texts (8.9%)
 ```
 
 ### EXPERIMENT 4: Euclidean Distance + Global Thresholds
@@ -157,7 +157,7 @@ F1-Score: 0.3274 (LOWEST)
 Precision: 0.2949 (LOWEST)
 Recall: 0.4283 (LOWEST)
 Coverage: 49.5% (POOR)
-Avg Labels/Text: 1.37 (LOWEST)
+Avg Labels/Text: 1.00 (LOWEST)
 Micro F1: 0.4283
 Macro F1: 0.3812
 
@@ -173,15 +173,15 @@ Zero Labels: 8,533 texts (49.5%) - MAJOR ISSUE
 
 ### Best Performing Metrics by Experiment
 - **Highest F1-Score**: Cosine Global (0.5083)
-- **Highest Precision**: Cosine Global (0.5122)  
+- **Highest Precision**: Cosine Global (0.4118)  
 - **Highest Recall**: Euclidean Adaptive (0.8285)
 - **Best Coverage**: Euclidean Adaptive (94.9%)
-- **Most Efficient**: Cosine Global (2.39 avg labels with highest precision)
+- **Most Efficient**: Cosine Global (2.51 avg labels with highest F1-score)
 
 ### Performance Gaps
 - **F1-Score Gap**: Winner vs Worst = 55.3% improvement (0.5083 vs 0.3274)
-- **Precision Gap**: Winner vs Worst = 73.8% improvement (0.5122 vs 0.2949)
-- **Coverage Gap**: Winner vs Worst = 96.0% improvement (96.5% vs 49.5%)
+- **Precision Gap**: Winner vs Worst = 39.7% improvement (0.4118 vs 0.2949)
+- **Coverage Gap**: Winner vs Worst = 63.5% improvement (80.9% vs 49.5%)
 
 ### Distance Metric Comparison
 **Cosine Similarity Performance**:
@@ -220,19 +220,19 @@ Zero Labels: 8,533 texts (49.5%) - MAJOR ISSUE
 
 | Metric | Original SDGs | Summarized SDGs | Change |
 |--------|---------------|-----------------|---------|
-| **F1-Score** | 0.3261 | 0.3079 | **-5.6%** |
-| **Precision** | 0.2098 | 0.2019 | **-3.8%** |
-| **Recall** | 0.7313 | 0.6480 | **-11.4%** |
-| **Coverage** | 80.89% | 78.36% | **-3.1%** |
-| **Avg Labels/Text** | 3.49 | 3.21 | **-7.9%** |
+| **F1-Score** | 0.5083 | 0.4610 | **-9.3%** |
+| **Precision** | 0.4118 | 0.3703 | **-10.1%** |
+| **Recall** | 0.8725 | 0.8053 | **-7.7%** |
+| **Coverage** | 80.9% | 78.4% | **-3.1%** |
+| **Avg Labels/Text** | 2.51 | 2.43 | **-3.2%** |
 
-**WINNER**: Original SDG Descriptions (F1 improvement: +5.9%)
+**WINNER**: Original SDG Descriptions (F1 improvement: +10.3%)
 
 ### Analysis of Summarization Impact
 - **Performance Decline**: Summarized descriptions consistently underperform across all metrics
-- **Recall Drop**: Most significant impact on recall (-11.4%), indicating missed relevant SDGs
+- **Recall Drop**: Most significant impact on recall (-7.7%), indicating missed relevant SDGs
 - **Information Loss**: Summarization removed crucial contextual information needed for accurate classification
-- **Compression Ratio**: Average 15.8% compression (original texts reduced to ~16% of original length)
+- **F1-Score Impact**: 9.3% decrease demonstrates significant performance cost of summarization
 - **Recommendation**: Use original, full SDG descriptions for optimal classification performance
 
 ### Key Findings
