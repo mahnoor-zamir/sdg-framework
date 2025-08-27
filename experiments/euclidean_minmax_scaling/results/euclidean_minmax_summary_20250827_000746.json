@@ -1,0 +1,39 @@
+{
+  "experiment_info": {
+    "method": "Euclidean Distance + Min-Max Scaling",
+    "model": "all-MiniLM-L6-v2",
+    "timestamp": "20250827_000746",
+    "n_texts": 17248,
+    "n_sdgs": 17,
+    "n_threshold_combinations": 98
+  },
+  "best_performance": {
+    "best_f1": {
+      "f1_score": 0.4363565238385337,
+      "precision": 0.3491425874757616,
+      "recall": 0.699443413729128,
+      "primary_threshold": 0.4500000000000001,
+      "secondary_threshold": 0.5999999999999999,
+      "avg_assignments": 2.274234693877551
+    }
+  },
+  "scaling_info": {
+    "original_distance_range": [
+      0.6926984190940857,
+      1.5439882278442383
+    ],
+    "scaled_distance_range": [
+      0.0,
+      1.0
+    ],
+    "scaler_params": {
+      "feature_range": [
+        0,
+        1
+      ],
+      "data_min": 0.6926984190940857,
+      "data_max": 1.5439882278442383,
+      "scale": 1.1746881008148193
+    }
+  }
+}
