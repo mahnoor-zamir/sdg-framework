@@ -1,0 +1,51 @@
+{
+  "experiment_info": {
+    "method": "Euclidean Distance + Min-Max Scaling (Single-Label Ground Truth)",
+    "model": "all-MiniLM-L6-v2",
+    "timestamp": "20250827_202627",
+    "n_texts": 17248,
+    "n_sdgs": 17,
+    "n_threshold_combinations": 98,
+    "evaluation_approach": "Single-label ground truth vs multilabel predictions",
+    "problem_type": "Threshold-based multilabel prediction on single-label classification"
+  },
+  "best_performance": {
+    "best_accuracy": {
+      "accuracy": 0.9809253246753247,
+      "accuracy_percentage": 98.09253246753246,
+      "sample_f1": 0.9809253246753247,
+      "macro_f1": 0.15152209693829052,
+      "primary_threshold": 0.7000000000000002,
+      "secondary_threshold": 0.7499999999999999,
+      "avg_assignments": 11.469329777365491,
+      "correct_predictions": 16919
+    },
+    "best_sample_f1": {
+      "sample_f1": 0.9809253246753247,
+      "accuracy": 0.9809253246753247,
+      "macro_f1": 0.15152209693829052,
+      "primary_threshold": 0.7000000000000002,
+      "secondary_threshold": 0.7499999999999999,
+      "avg_assignments": 11.469329777365491
+    }
+  },
+  "scaling_info": {
+    "original_distance_range": [
+      0.6926984190940857,
+      1.5439882278442383
+    ],
+    "scaled_distance_range": [
+      0.0,
+      1.0
+    ],
+    "scaler_params": {
+      "feature_range": [
+        0,
+        1
+      ],
+      "data_min": 0.6926984190940857,
+      "data_max": 1.5439882278442383,
+      "scale": 1.1746881008148193
+    }
+  }
+}
