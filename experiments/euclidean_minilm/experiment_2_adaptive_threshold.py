@@ -181,8 +181,79 @@ def assign_labels_adaptive_euclidean(distances, primary_threshold, secondary_thr
         'breakdown': assignment_breakdown
     }
 
-def calculate_comprehensive_metrics(y_true_binary, y_pred_binary, y_true_lists, y_pred_lists):
-    """Calculate comprehensive evaluation metrics."""
+def calculate_ranking_metrics(distances, y_true_lists, k_values=[1, 2, 3, 5, 10]):
+    """
+    Calculate ranking-based metrics (Hit@K and MRR) for single-label ground truth.
+    
+    Args:
+        distances: Distance matrix (n_texts, n_sdgs) - lower is more similar
+        y_true_lists: List of ground truth SDG lists per text
+        k_values: List of k values for Hit@K calculation
+    
+    Returns:
+        Dictionary with ranking metrics
+    """
+    print("Calculating ranking metrics...")
+    
+    # Convert multi-label ground truth to primary label (first/main SDG)
+    true_primary_indices = []
+    for true_labels in y_true_lists:
+        if len(true_labels) > 0:
+            # Use the first SDG as primary (could also use most frequent or other logic)
+            primary_sdg = true_labels[0]  # SDG numbers are 1-indexed
+            true_primary_indices.append(primary_sdg - 1)  # Convert to 0-indexed for array access
+        else:
+            # Handle texts with no labels (shouldn't happen in OSDG dataset)
+            true_primary_indices.append(0)  # Default to SDG 1
+    
+    # Calculate Hit@K metrics
+    hit_metrics = {}
+    reciprocal_ranks = []
+    
+    for k in k_values:
+        hits = 0
+        for i, text_distances in enumerate(distances):
+            true_primary_idx = true_primary_indices[i]
+            
+            # Get top-k SDG indices with lowest distances (most similar)
+            top_k_indices = np.argsort(text_distances)[:k]
+            
+            # Check if primary true SDG is in top-k predictions
+            if true_primary_idx in top_k_indices:
+                hits += 1
+        
+        hit_metrics[f'Hit@{k}'] = hits / len(distances)
+    
+    # Calculate Mean Reciprocal Rank (MRR)
+    for i, text_distances in enumerate(distances):
+        true_primary_idx = true_primary_indices[i]
+        
+        # Get ranking of all SDGs (0-indexed positions)
+        sdg_ranking = np.argsort(text_distances)
+        
+        # Find position of true primary SDG (1-indexed rank)
+        true_rank = np.where(sdg_ranking == true_primary_idx)[0][0] + 1
+        reciprocal_ranks.append(1.0 / true_rank)
+    
+    mrr = np.mean(reciprocal_ranks)
+    avg_true_rank = 1.0 / mrr
+    
+    print(f"Ranking Metrics Results:")
+    for k in k_values:
+        print(f"  Hit@{k}: {hit_metrics[f'Hit@{k}']:.4f} ({hit_metrics[f'Hit@{k}']*100:.1f}%)")
+    print(f"  Mean Reciprocal Rank (MRR): {mrr:.4f}")
+    print(f"  Average True SDG Rank: {avg_true_rank:.2f}")
+    print()
+    
+    return {
+        'hit_metrics': hit_metrics,
+        'mrr': mrr,
+        'avg_true_rank': avg_true_rank,
+        'individual_reciprocal_ranks': reciprocal_ranks
+    }
+
+def calculate_comprehensive_metrics(y_true_binary, y_pred_binary, y_true_lists, y_pred_lists, distances=None):
+    """Calculate comprehensive evaluation metrics including traditional and ranking metrics."""
     
     # Sample-based metrics
     sample_precision = []
@@ -221,7 +292,12 @@ def calculate_comprehensive_metrics(y_true_binary, y_pred_binary, y_true_lists, 
         y_true_binary, y_pred_binary, average='macro', zero_division=0
     )
     
-    return {
+    # Calculate ranking metrics if distances are provided
+    ranking_metrics = None
+    if distances is not None:
+        ranking_metrics = calculate_ranking_metrics(distances, y_true_lists)
+    
+    results = {
         'sample_based': {
             'precision': np.mean(sample_precision),
             'recall': np.mean(sample_recall),
@@ -237,6 +313,12 @@ def calculate_comprehensive_metrics(y_true_binary, y_pred_binary, y_true_lists, 
             'macro_f1': f1_macro
         }
     }
+    
+    # Add ranking metrics if calculated
+    if ranking_metrics:
+        results['ranking_metrics'] = ranking_metrics
+    
+    return results
 
 def main():
     """Main experiment execution."""
@@ -328,7 +410,7 @@ def main():
     
     # Calculate metrics
     print("Calculating evaluation metrics...")
-    metrics = calculate_comprehensive_metrics(y_true_binary, y_pred_binary, y_true_lists, predicted_labels)
+    metrics = calculate_comprehensive_metrics(y_true_binary, y_pred_binary, y_true_lists, predicted_labels, distances)
     
     # Assignment statistics
     total_assignments = sum(len(labels) for labels in predicted_labels)
@@ -381,6 +463,16 @@ def main():
     print(f"\nLabel-based metrics:")
     print(f"  Micro F1: {metrics['label_based']['micro_f1']:.4f}")
     print(f"  Macro F1: {metrics['label_based']['macro_f1']:.4f}")
+    
+    # Print ranking metrics if available
+    if 'ranking_metrics' in metrics:
+        print(f"\nRanking-based metrics:")
+        ranking = metrics['ranking_metrics']
+        for k in [1, 2, 3, 5, 10]:
+            if f'Hit@{k}' in ranking['hit_metrics']:
+                print(f"  Hit@{k}: {ranking['hit_metrics'][f'Hit@{k}']:.4f} ({ranking['hit_metrics'][f'Hit@{k}']*100:.1f}%)")
+        print(f"  Mean Reciprocal Rank: {ranking['mrr']:.4f}")
+        print(f"  Avg True SDG Rank: {ranking['avg_true_rank']:.2f}")
     
     print(f"\nOverall conservation rate: {conservation_rate:.4f}")
     print(f"Coverage rate: {coverage_rate:.4f}")
