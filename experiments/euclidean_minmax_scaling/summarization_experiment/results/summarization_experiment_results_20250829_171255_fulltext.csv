@@ -1,0 +1,2 @@
+primary_threshold,secondary_threshold,macro_f1,accuracy,avg_assignments
+0.5,0.6,0.35995020708763925,0.7460575139146568,2.8996985157699444
